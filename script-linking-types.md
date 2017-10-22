@@ -32,38 +32,38 @@ This is a better solution than previous works because we minimally enrich source
 and allow programmers to annotate only when they want to link with inexpressible components in
 their source language.
 
-To introduce linking types formally, we consider two simple source languages. \lambda is the
-simply typed lambda calculus with integer base types and \lambda^ref extends \lambda with mutable
-references. We want type-preserving fully abstract compilers from \lambda and \lambda^ref to
+To introduce linking types formally, we consider two simple source languages. $\lambda$ is the
+simply typed lambda calculus with integer base types and $\lambda^{\mathrm{ref}}$ extends $\lambda$ with mutable
+references. We want type-preserving fully abstract compilers from $\lambda$ and $\lambda^{\mathrm{ref}}$ to
 a common target language. The target should have a rich enough type system to allow full abstract
 type translation and to use types to rule out equivalence disrupting linking.
 
-For example, our target \lambda^ref_exn has a modal type system that can distinguish pure computation
-from impure computation, which then can be used to rule out linking \lambda with \lambda^ref component
+For example, our target $\lambda^{\mathrm{ref}}_{\mathrm{exn}}$ has a modal type system that can distinguish pure computation
+from impure computation, which then can be used to rule out linking \lambda with $\lambda^{\mathrm{ref}}$ component
 that uses mutable references. We also added exceptions to the target to represent the extra control
 flow commonly found in low-level language.
 
-Let me illustrate the linking idea with e_1 and e_2 here. These two programs are equivalent in \lambda.
-Now consider the context C^ref that implements a counter using a reference cell. The fully abstract
-compiler would have to disallow linking between e_1 and e_2 with C^ref since this linking disrupts
+Let me illustrate the linking idea with $e_1$ and $e_2$ here. These two programs are equivalent in $\lambda$.
+Now consider the context $C^{\mathrm{ref}}$ that implements a counter using a reference cell. The fully abstract
+compiler would have to disallow linking between $e_1$ and $e_2$ with $C^{\mathrm{ref}}$ since this linking disrupts
 the equivalence. What if the programmer wants to link these together and is willing to give up some
 equivalences in order to do so?
 
-We present linking-types extension for \lambda^\kappa and \lambda^ref^kappa to enable such linking.
-The \lambda^\kappa type system includes reference types and tracks heap effects. It also includes
-a computation type R^\epsilon \tau that will be compiled to the target computation type
-E^\epsilon_exn \tau. Additionally, we provide type conversion functions \kappa+ and \kappa- to relate
-types in \lambda and \lambda^\kappa.
+We present linking-types extension for $\lambda^{\kappa}$ and $\lambda^{\mathrm{ref}^{\kappa}}$ to enable such linking.
+The $\lambda^\kappa$ type system includes reference types and tracks heap effects. It also includes
+a computation type $R^\epsilon \tau$ that will be compiled to the target computation type
+$E^{\epsilon}_{\mathrm{exn}} \tau$. Additionally, we provide type conversion functions $\kappa^+$ and $\kappa^-$ to relate
+types in $\lambda$ and $\lambda^\kappa$.
 
-With this extension, the programmer can annotate e_1 and e_2 with a linking type that specifies that
-the input to these programs can be heap-effecting. At this type, e_1 and e_2 are no longer contextually
-equivalent and further can be linked with \lambda^ref's the counter library.
+With this extension, the programmer can annotate $e_1$ and $e_2$ with a linking type that specifies that
+the input to these programs can be heap-effecting. At this type, $e_1$ and $e_2$ are no longer contextually
+equivalent and further can be linked with $\lambda^{\mathrm{ref}}$'s the counter library.
 
-Without the annotation, the compiler would translate the types of e_1 and e_2 which is the \lambda type
-unit -> int to the \lambda^ref_exn type unit -> E^0_O and the type of counter which is the \lambda^ref
-type unit -> int to the \lambda^ref_exn type unit -> E^1_O type. Since these types are not the same
+Without the annotation, the compiler would translate the types of $e_1$ and $e_2$ which is the $\lambda$ type
+`unit -> int` to the $\lambda^{\mathrm{ref}}_{\mathrm{exn}}$ type `unit -> `$E^0_O$ and the type of counter which is the $\lambda^{\mathrm{ref}}$
+type `unit -> int` to the $\lambda^{\mathrm{ref}}_{\mathrm{exn}}$ type `unit ->` $E^1_O$ type. Since these types are not the same
 an error would be reported and linking can't happen.
 
-By contrast, \lambda^\kappa's type (unit -> R^1 int) -> int that the programmer annotate e_1 and e_2
-with will be translated to (unit -> E^1_O int) -> E^1_O int which is the same from the translation of
+By contrast, $\lambda^\kappa$'s type (`unit -> R^1 int) -> int` that the programmer annotate $e_1$ and $e_2$
+with will be translated to `(unit -> E^1_O int) -> E^1_O int` which is the same from the translation of
 the counter library. 
