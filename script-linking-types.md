@@ -5,8 +5,8 @@ This is a problem because as programmers develop complex systems, they spend muc
 
 Unfortunately, in a refactoring process programmers cannot solely rely on contextual equivalence of
 their own language. Since different languages interact after they have been compiled to
-a target language, programmers have to take the contexts that is inexpressible in their source language
-but is expressible in the common target into account in their reasoning.
+a target language, programmers have to take the contexts that are inexpressible in their source language
+but are expressible in the common target into account in their reasoning.
 
 For example, even if a programmer is using a safe language like OCaml, the equivalence he/she relies
 on in the source level can be disrupted by a C code that can be linked in a lower-level unsafe language.
@@ -22,15 +22,15 @@ is exactly what the programmer wants, but was not able to express in his/her sou
 Moreover, we want programmers to decide what kind of linking is necessary in his/her program, not
 compiler writers.
 
-(Similar work: cross-langauge linking is supported by Compositional Compcert, but it only allows
-linking with components that satisfy CompCert' memory model, Perconti and Ahmed's multi-language
-style of verified compilers, but a programmer needs to understand the full ST language and the
-compiler from R to T.)
+There have been efforts to solve this problem. A cross-langauge linking is supported by Compositional
+Compcert, but it only allows linking with components that satisfy CompCert' memory model. Perconti and
+Ahmed's multi-language style of verified compilers are also a possible solution, but with a limitation
+that programmers needs to understand the full ST language and the compiler from R to T.
 
-The method advocated in the paper is to extend source language specifications with linking types.
-This is a better solution than previous works because we minimally enrich source language types
-and allow programmers to annotate only when they want to link with inexpressible components in
-their source language.
+The method advocated in this paper is to extend source language specifications with linking types.
+This is a better solution than previous works because they minimally enrich source language types
+and allow programmers to annotate individual terms only when they want to link with inexpressible
+components in their source language giving find-grained control.
 
 To introduce linking types formally, we consider two simple source languages. $\lambda$ is the
 simply typed lambda calculus with integer base types and $\lambda^{\mathrm{ref}}$ extends $\lambda$ with mutable
@@ -39,7 +39,7 @@ a common target language. The target should have a rich enough type system to al
 type translation and to use types to rule out equivalence disrupting linking.
 
 For example, our target $\lambda^{\mathrm{ref}}_{\mathrm{exn}}$ has a modal type system that can distinguish pure computation
-from impure computation, which then can be used to rule out linking \lambda with $\lambda^{\mathrm{ref}}$ component
+from impure computation, which then can be used to rule out linking $\lambda$ with $\lambda^{\mathrm{ref}}$ component
 that uses mutable references. We also added exceptions to the target to represent the extra control
 flow commonly found in low-level language.
 
@@ -66,4 +66,4 @@ an error would be reported and linking can't happen.
 
 By contrast, $\lambda^\kappa$'s type (`unit -> R^1 int) -> int` that the programmer annotate $e_1$ and $e_2$
 with will be translated to `(unit -> E^1_O int) -> E^1_O int` which is the same from the translation of
-the counter library. 
+the counter library.
