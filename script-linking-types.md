@@ -1,3 +1,6 @@
+This talk is based on the paper `Linking Types for Multi-language Software` by Daniel Patterson and Amal Ahmed, which is presented at SNAPL 2017.
+
+###Motivation
 In a large-scale software system, each part of the system is responsible for
 a specific task and is, therefore, often written in a language that is best suited for that task.
 This is a problem because as programmers develop complex systems, they spend much time refactoring.
@@ -22,48 +25,49 @@ is exactly what the programmer wants, but was not able to express in his/her sou
 Moreover, we want programmers to decide what kind of linking is necessary in his/her program, not
 compiler writers.
 
+###Previous Works
 There have been efforts to solve this problem. A cross-langauge linking is supported by Compositional
 Compcert, but it only allows linking with components that satisfy CompCert' memory model. Perconti and
 Ahmed's multi-language style of verified compilers are also a possible solution, but with a limitation
-that programmers needs to understand the full ST language and the compiler from R to T.
+that programmers need to understand the full intermediate ST language and the compiler from R to T.
 
-The method advocated in this paper is to extend source language specifications with linking types.
-This is a better solution than previous works because they minimally enrich source language types
-and allow programmers to annotate individual terms only when they want to link with inexpressible
-components in their source language giving find-grained control.
+###Our Solution: Linking Types
+The proposed solution in this paper is to extend source language specifications with linking types. This is a better solution than previous works because they minimally enrich source language types
+and give programmers fine-grained control by letting them annotate individual terms that need linking.
 
-To introduce linking types formally, we consider two simple source languages. $\lambda$ is the
-simply typed lambda calculus with integer base types and $\lambda^{\mathrm{ref}}$ extends $\lambda$ with mutable
-references. We want type-preserving fully abstract compilers from $\lambda$ and $\lambda^{\mathrm{ref}}$ to
-a common target language. The target should have a rich enough type system to allow full abstract
-type translation and to use types to rule out equivalence disrupting linking.
+### Linking Types Formally
+To introduce linking types formally, we consider two simple source languages, $\lambda$ and $\lambda^{\mathrm{ref}}$. $\lambda$ is the simply typed lambda calculus with unit and integer base types and $\lambda^{\mathrm{ref}}$ extends $\lambda$ with mutable references. We want type-preserving fully abstract compilers from $\lambda$ and $\lambda^{\mathrm{ref}}$ to
+a common target language $\lambda^{\mathrm{ref}}_{\mathrm{exn}}$. The target should have a rich enough type system to allow full abstract type translation and to use types to rule out equivalence disrupting linking.
 
 For example, our target $\lambda^{\mathrm{ref}}_{\mathrm{exn}}$ has a modal type system that can distinguish pure computation
-from impure computation, which then can be used to rule out linking $\lambda$ with $\lambda^{\mathrm{ref}}$ component
-that uses mutable references. We also added exceptions to the target to represent the extra control
-flow commonly found in low-level language.
+from impure computation, which can be used to rule out linking $\lambda$ with the $\lambda^{\mathrm{ref}}$ components that use mutable references. We also add exceptions to the target to represent the extra control flow commonly found in low-level languages.
 
-Let me illustrate the linking idea with $e_1$ and $e_2$ here. These two programs are equivalent in $\lambda$.
-Now consider the context $C^{\mathrm{ref}}$ that implements a counter using a reference cell. The fully abstract
-compiler would have to disallow linking between $e_1$ and $e_2$ with $C^{\mathrm{ref}}$ since this linking disrupts
-the equivalence. What if the programmer wants to link these together and is willing to give up some
-equivalences in order to do so?
+###Examples
+Let me illustrate the linking idea with two example programs $e_1$ and $e_2$. These two programs are equivalent in $\lambda$. Since $\lambda$ is pure, calling c once or twice produces the same result. Now consider the context $C^{\mathrm{ref}}$ that implements a counter using a reference cell. The fully abstract
+compiler would have to disallow linking with ${C^{\mathrm{ref}}}^+$ because it can distinguish them. In other words, $e_1^+$ and $e_2^+$ are no longer contextually equivalent.
+What if the programmer wants to link these together and is willing to give up some equivalences in order to do so?
 
-We present linking-types extension for $\lambda^{\kappa}$ and $\lambda^{\mathrm{ref}^{\kappa}}$ to enable such linking.
-The $\lambda^\kappa$ type system includes reference types and tracks heap effects. It also includes
-a computation type $R^\epsilon \tau$ that will be compiled to the target computation type
-$E^{\epsilon}_{\mathrm{exn}} \tau$. Additionally, we provide type conversion functions $\kappa^+$ and $\kappa^-$ to relate
-types in $\lambda$ and $\lambda^\kappa$.
+To enable this linking, we present linking-types extensions, $\lambda^\mathrm{\kappa}$ and $\lambda^{{\mathrm{ref}}^{\kappa}}$. The $\lambda^\kappa$ type system includes the reference type and the computation type, $R^{\epsilon} \tau$, which is analogous to $E^{\epsilon} \tau$ in the target type system. We will use $R^{\epsilon} \tau$ to track heap effects.
 
-With this extension, the programmer can annotate $e_1$ and $e_2$ with a linking type that specifies that
-the input to these programs can be heap-effecting. At this type, $e_1$ and $e_2$ are no longer contextually
-equivalent and further can be linked with $\lambda^{\mathrm{ref}}$'s the counter library.
+With this extension, the programmer can annotate $e_1$ and $e_2$ with a linking type that specifies that the input to these programs can be heap-effecting. At this type, $e_1$ and $e_2$ are no longer contextually equivalent and further can be linked with $\lambda^{{\mathrm{ref}}^{\kappa}}$'s the counter library.
 
-Without the annotation, the compiler would translate the types of $e_1$ and $e_2$ which is the $\lambda$ type
-`unit -> int` to the $\lambda^{\mathrm{ref}}_{\mathrm{exn}}$ type `unit -> `$E^0_O$ and the type of counter which is the $\lambda^{\mathrm{ref}}$
-type `unit -> int` to the $\lambda^{\mathrm{ref}}_{\mathrm{exn}}$ type `unit ->` $E^1_O$ type. Since these types are not the same
-an error would be reported and linking can't happen.
+Without the annotation, the compiler would translate the types of $e_1$ and $e_2$ which is the $\lambda$ type **unit -> int** to the $\lambda^{\mathrm{ref}}_{\mathrm{exn}}$ type **unit -> $E^{o}_0$** and the type of counter c' which is the $\lambda^{\mathrm{ref}}$ type **unit -> int** to the $\lambda^{\mathrm{ref}}_{\mathrm{exn}}$ type **unit -> $E^{\cdot}_0$** type. Since these types are not the same an error would be reported and linking can't happen.
 
-By contrast, $\lambda^\kappa$'s type (`unit -> R^1 int) -> int` that the programmer annotate $e_1$ and $e_2$
-with will be translated to `(unit -> E^1_O int) -> E^1_O int` which is the same from the translation of
+By contrast, $\lambda^\kappa$'s type **unit -> $R^{\cdot}$ int -> int** that the programmer annotate $e_1$ and $e_2$
+with will be translated to **(unit -> $E^{\cdot}_O$ int) -> $E^{\cdot}_O$ int** which is the same from the translation of
 the counter library.
+
+Please note that we are not changing the programming language itself. The terms added in the extension are there only for programmer's reasoning. (so that the programmer is aware of the contexts in which his/her programs are linked) Linking types should only allow a programmer to change equivalence of their existing language.
+
+Additionally, to relate types of $\lambda$ and $\lambda^{\kappa}$ the linking types extension is equipped with type conversion functions $\kappa^+$ and  $\kappa^-$. We will discuss this in more detail in the properties of linking types.
+
+###Properties of Linking Types
+
+For any source language $\lambda_{src}$, an extended language $\lambda^{\kappa}_{src}$ with type converting functions $\kappa^+$ and $\kappa^-$ is a linking types extension if the following properties hold:
+
+* $\forall e \in \lambda_{src}. e \in \lambda^{\kappa}_{src}$
+* $\forall \tau \in \lambda_{src}. \kappa^+ (\tau) = \tau^{\kappa}$
+* $\forall \tau^{\kappa} \in \lambda^{\kappa}_{src}. \kappa^- (\tau^{\kappa}) = \tau$
+* $\forall \tau \in \lambda_{src}. \kappa^- (\kappa^+ (\tau)) = \tau$
+* $\forall e_1, e_2 \in \lambda_{src}. e_1 \approx^{ctx}_{\lambda_{src}} e_2 : \tau \Longleftrightarrow e_1 \approx^{ctx}_{\lambda^{\kappa}_{src}} e_2 : \kappa^+ (\tau)$
+* The set of programs you can write in $\lambda_{src}$ is the same set of programs you can write in $\lambda^{\kappa}_{src}$.
