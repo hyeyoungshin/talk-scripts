@@ -75,3 +75,27 @@ For any source language $\lambda_{src}$, an extended language $\lambda^{\kappa}_
 * $\forall \tau \in \lambda_{src}. \kappa^- (\kappa^+ (\tau)) = \tau$
 * $\forall e_1, e_2 \in \lambda_{src}. e_1 \approx^{ctx}_{\lambda_{src}} e_2 : \tau \Longleftrightarrow e_1 \approx^{ctx}_{\lambda^{\kappa}_{src}} e_2 : \kappa^+ (\tau)$
 * The set of programs you can write in $\lambda_{src}$ is the same set of programs you can write in $\lambda^{\kappa}_{src}$.
+
+1. $\lambda_{src}$ terms are a subset of $\lambda^{\kappa}_{src}$ terms.
+2. $\lambda_{src}$ type $\tau$ embeds into a $\lambda^{\kappa}_{src}$ type by $\kappa^+(\tau)$.
+3. $\lambda^{\kappa}_{src}$ type $\tau^{\kappa}$ projects to a $\lambda_{src}$ type by $\kappa^-(\tau^{\kappa})$.
+4. For any $\lambda_{src}$ type $\tau$, $\kappa^-(\kappa^+(\tau)) = \tau$.
+5. $\kappa^+$ preserves and reflects equivalence.
+6. The same.
+
+We can understand the effect and properties of linking types by studying how the extension affect equivalence classes of programs using example program A, B, and C.
+
+$A: \lambda f : int \rightarrow int. 1$  
+$B: \lambda f : int \rightarrow int. f 0; 1$  
+$C: \lambda f : int \rightarrow int. f 0; f 0; 1$  
+
+At the type **(int -> int) -> int**, these three programs are equivalent in $\lambda$, which is illustrated by A,B,C in a single equivalence box. In $\lambda^{ref}$, $f$ may increment a counter, thus A,B,C could have externally visible effects. So they are in separate boxes.
+
+Now we consider different type annotations a programmer of $\lambda^{{ref}^{\kappa}}$ can give to A, B, and C. Using the computation type $R^{\epsilon} int$, we can convert **(int -> int) -> int** into four different types:
+
+(int -> $R^{o} int$) -> $R^{o} int$  
+(int -> $R^{o} int$) -> $R^{\cdot} int$  
+(int -> $R^{\cdot} int$) -> $R^{o} int$  
+(int -> $R^{\cdot} int$) -> $R^{\cdot} int$
+
+Observe the changed made in the equivalence classes in $\lambda^{{ref}^{\kappa}}$. At the type (int -> $R^{o} int$) -> $R^{o} int$, A, B, and C are all equivalent since this linking type requires that $f$ be pure.  At the type (int -> $R^{\cdot} int$) -> $R^{\cdot} int$ all three programs are in different equivalence classes, because the linking type allows $f$ to be impure. At the type (int -> $R^{o} int$) -> $R^{\cdot} int$ all three programs are equivalent again. Since $f$ is pure, allowing the body to be impure does not make any difference. The last linking type (int -> $R^{\cdot} int$) -> $R^{o} int$ can only be assigned to $A$, because an impure $f$ could not have been called to produce a pure result.
