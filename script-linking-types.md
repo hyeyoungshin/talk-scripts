@@ -99,3 +99,5 @@ Now we consider different type annotations a programmer of $\lambda^{{ref}^{\kap
 (int -> $R^{\cdot} int$) -> $R^{\cdot} int$
 
 Observe the changed made in the equivalence classes in $\lambda^{{ref}^{\kappa}}$. At the type (int -> $R^{o} int$) -> $R^{o} int$, A, B, and C are all equivalent since this linking type requires that $f$ be pure.  At the type (int -> $R^{\cdot} int$) -> $R^{\cdot} int$ all three programs are in different equivalence classes, because the linking type allows $f$ to be impure. At the type (int -> $R^{o} int$) -> $R^{\cdot} int$ all three programs are equivalent again. Since $f$ is pure, allowing the body to be impure does not make any difference. The last linking type (int -> $R^{\cdot} int$) -> $R^{o} int$ can only be assigned to $A$, because an impure $f$ could not have been called to produce a pure result.
+
+The $\lambda$ programmer who wants to link one of these programs with a $\lambda^{ref}$ program can use $\lambda^{\kappa}$'s type (int -> $R^{\cdot} int$) -> $R^{\cdot} int$ to annotate the function $f$ to enable linking. In this process, he chooses to lose the equivalence in order to link. 
