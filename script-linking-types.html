@@ -183,7 +183,7 @@
   background-color: #e0c285 !important;
 }
 .syntax--invalid.syntax--illegal {
-  color: #ffffff !important;
+  color: white !important;
   background-color: #e05252 !important;
 }
 .syntax--markup.syntax--bold {
@@ -234,6 +234,45 @@
 .syntax--source.syntax--css .syntax--property-name.syntax--support,
 .syntax--source.syntax--css .syntax--property-value.syntax--support {
   color: #abb2bf;
+}
+.syntax--source.syntax--elixir .syntax--source.syntax--embedded.syntax--source {
+  color: #abb2bf;
+}
+.syntax--source.syntax--elixir .syntax--constant.syntax--language,
+.syntax--source.syntax--elixir .syntax--constant.syntax--numeric,
+.syntax--source.syntax--elixir .syntax--constant.syntax--definition {
+  color: #61afef;
+}
+.syntax--source.syntax--elixir .syntax--variable.syntax--definition,
+.syntax--source.syntax--elixir .syntax--variable.syntax--anonymous {
+  color: #c678dd;
+}
+.syntax--source.syntax--elixir .syntax--quoted {
+  color: #98c379;
+}
+.syntax--source.syntax--elixir .syntax--keyword.syntax--special-method,
+.syntax--source.syntax--elixir .syntax--embedded.syntax--section,
+.syntax--source.syntax--elixir .syntax--embedded.syntax--source.syntax--empty {
+  color: #e06c75;
+}
+.syntax--source.syntax--elixir .syntax--readwrite.syntax--module .syntax--punctuation {
+  color: #e06c75;
+}
+.syntax--source.syntax--elixir .syntax--regexp.syntax--section,
+.syntax--source.syntax--elixir .syntax--regexp.syntax--string {
+  color: #be5046;
+}
+.syntax--source.syntax--elixir .syntax--separator,
+.syntax--source.syntax--elixir .syntax--keyword.syntax--operator {
+  color: #d19a66;
+}
+.syntax--source.syntax--elixir .syntax--variable.syntax--constant {
+  color: #e5c07b;
+}
+.syntax--source.syntax--elixir .syntax--array,
+.syntax--source.syntax--elixir .syntax--scope,
+.syntax--source.syntax--elixir .syntax--section {
+  color: #828997;
 }
 .syntax--source.syntax--gfm .syntax--markup {
   -webkit-font-smoothing: auto;
@@ -301,7 +340,12 @@
 }
 </style>
   </head>
-  <body class='markdown-preview'><p>In a large-scale software system, each part of the system is responsible for
+  <body class='markdown-preview'><p><strong>Date and Time</strong>: 10/24/2017, Tuesday at 5:00 - 6:00<br>
+<strong>Presenter</strong>: Hyeyoung Shin</p>
+<h3>Intro</h3>
+<p>This talk is based on the paper <em>Linking Types for Multi-language Software</em> by Daniel Patterson and Amal Ahmed, which is presented at SNAPL 2017.</p>
+<h3>Motivation</h3>
+<p>In a large-scale software system, each part of the system is responsible for
 a specific task and is, therefore, often written in a language that is best suited for that task.
 This is a problem because as programmers develop complex systems, they spend much time refactoring.
 (making changes to components that should result in equivalent behavior.)</p>
@@ -320,41 +364,39 @@ behavior is inexpressible in the compiler’s source language. What if this extr
 is exactly what the programmer wants, but was not able to express in his/her source language?
 Moreover, we want programmers to decide what kind of linking is necessary in his/her program, not
 compiler writers.</p>
+<h3>Previous Works</h3>
 <p>There have been efforts to solve this problem. A cross-langauge linking is supported by Compositional
 Compcert, but it only allows linking with components that satisfy CompCert’ memory model. Perconti and
 Ahmed’s multi-language style of verified compilers are also a possible solution, but with a limitation
-that programmers needs to understand the full ST language and the compiler from R to T.</p>
-<p>The method advocated in this paper is to extend source language specifications with linking types.
-This is a better solution than previous works because they minimally enrich source language types
-and allow programmers to annotate individual terms only when they want to link with inexpressible
-components in their source language giving find-grained control.</p>
-<p>To introduce linking types formally, we consider two simple source languages. <span class="math"><script type="math/tex">\lambda</script></span> is the
-simply typed lambda calculus with integer base types and <span class="math"><script type="math/tex">\lambda^{\mathrm{ref}}</script></span> extends <span class="math"><script type="math/tex">\lambda</script></span> with mutable
-references. We want type-preserving fully abstract compilers from <span class="math"><script type="math/tex">\lambda</script></span> and <span class="math"><script type="math/tex">\lambda^{\mathrm{ref}}</script></span> to
-a common target language. The target should have a rich enough type system to allow full abstract
-type translation and to use types to rule out equivalence disrupting linking.</p>
+that programmers need to understand the full intermediate ST language and the compiler from R to T.</p>
+<h3>Our Solution: Linking Types</h3>
+<p>The proposed solution in this paper is to extend source language specifications with linking types. This is a better solution than previous works because they minimally enrich source language types
+and give programmers fine-grained control by letting them annotate individual terms that need linking.</p>
+<h3>Linking Types Formally</h3>
+<p>To introduce linking types formally, we consider two simple source languages, <span class="math"><script type="math/tex">\lambda</script></span> and <span class="math"><script type="math/tex">\lambda^{\mathrm{ref}}</script></span>. <span class="math"><script type="math/tex">\lambda</script></span> is the simply typed lambda calculus with unit and integer base types and <span class="math"><script type="math/tex">\lambda^{\mathrm{ref}}</script></span> extends <span class="math"><script type="math/tex">\lambda</script></span> with mutable references. We want type-preserving fully abstract compilers from <span class="math"><script type="math/tex">\lambda</script></span> and <span class="math"><script type="math/tex">\lambda^{\mathrm{ref}}</script></span> to
+a common target language <span class="math"><script type="math/tex">\lambda^{\mathrm{ref}}_{\mathrm{exn}}</script></span>. The target should have a rich enough type system to allow full abstract type translation and to use types to rule out equivalence disrupting linking.</p>
 <p>For example, our target <span class="math"><script type="math/tex">\lambda^{\mathrm{ref}}_{\mathrm{exn}}</script></span> has a modal type system that can distinguish pure computation
-from impure computation, which then can be used to rule out linking <span class="math"><script type="math/tex">\lambda</script></span> with <span class="math"><script type="math/tex">\lambda^{\mathrm{ref}}</script></span> component
-that uses mutable references. We also added exceptions to the target to represent the extra control
-flow commonly found in low-level language.</p>
-<p>Let me illustrate the linking idea with <span class="math"><script type="math/tex">e_1</script></span> and <span class="math"><script type="math/tex">e_2</script></span> here. These two programs are equivalent in <span class="math"><script type="math/tex">\lambda</script></span>.
-Now consider the context <span class="math"><script type="math/tex">C^{\mathrm{ref}}</script></span> that implements a counter using a reference cell. The fully abstract
-compiler would have to disallow linking between <span class="math"><script type="math/tex">e_1</script></span> and <span class="math"><script type="math/tex">e_2</script></span> with <span class="math"><script type="math/tex">C^{\mathrm{ref}}</script></span> since this linking disrupts
-the equivalence. What if the programmer wants to link these together and is willing to give up some
-equivalences in order to do so?</p>
-<p>We present linking-types extension for <span class="math"><script type="math/tex">\lambda^{\kappa}</script></span> and <span class="math"><script type="math/tex">\lambda^{\mathrm{ref}^{\kappa}}</script></span> to enable such linking.
-The <span class="math"><script type="math/tex">\lambda^\kappa</script></span> type system includes reference types and tracks heap effects. It also includes
-a computation type <span class="math"><script type="math/tex">R^\epsilon \tau</script></span> that will be compiled to the target computation type
-<span class="math"><script type="math/tex">E^{\epsilon}_{\mathrm{exn}} \tau</script></span>. Additionally, we provide type conversion functions <span class="math"><script type="math/tex">\kappa^+</script></span> and <span class="math"><script type="math/tex">\kappa^-</script></span> to relate
-types in <span class="math"><script type="math/tex">\lambda</script></span> and <span class="math"><script type="math/tex">\lambda^\kappa</script></span>.</p>
-<p>With this extension, the programmer can annotate <span class="math"><script type="math/tex">e_1</script></span> and <span class="math"><script type="math/tex">e_2</script></span> with a linking type that specifies that
-the input to these programs can be heap-effecting. At this type, <span class="math"><script type="math/tex">e_1</script></span> and <span class="math"><script type="math/tex">e_2</script></span> are no longer contextually
-equivalent and further can be linked with <span class="math"><script type="math/tex">\lambda^{\mathrm{ref}}</script></span>'s the counter library.</p>
-<p>Without the annotation, the compiler would translate the types of <span class="math"><script type="math/tex">e_1</script></span> and <span class="math"><script type="math/tex">e_2</script></span> which is the <span class="math"><script type="math/tex">\lambda</script></span> type
-<code>unit -&gt; int</code> to the <span class="math"><script type="math/tex">\lambda^{\mathrm{ref}}_{\mathrm{exn}}</script></span> type <code>unit -&gt;</code><span class="math"><script type="math/tex">E^0_O</script></span> and the type of counter which is the <span class="math"><script type="math/tex">\lambda^{\mathrm{ref}}</script></span>
-type <code>unit -&gt; int</code> to the <span class="math"><script type="math/tex">\lambda^{\mathrm{ref}}_{\mathrm{exn}}</script></span> type <code>unit -&gt;</code> <span class="math"><script type="math/tex">E^1_O</script></span> type. Since these types are not the same
-an error would be reported and linking can’t happen.</p>
-<p>By contrast, <span class="math"><script type="math/tex">\lambda^\kappa</script></span>'s type (<code>unit -&gt; R^1 int) -&gt; int</code> that the programmer annotate <span class="math"><script type="math/tex">e_1</script></span> and <span class="math"><script type="math/tex">e_2</script></span>
-with will be translated to <code>(unit -&gt; E^1_O int) -&gt; E^1_O int</code> which is the same from the translation of
-the counter library.</p></body>
+from impure computation, which can be used to rule out linking <span class="math"><script type="math/tex">\lambda</script></span> with the <span class="math"><script type="math/tex">\lambda^{\mathrm{ref}}</script></span> components that use mutable references. We also add exceptions to the target to represent the extra control flow commonly found in low-level languages.</p>
+<h3>Examples</h3>
+<p>Let me illustrate the linking idea with two example programs <span class="math"><script type="math/tex">e_1</script></span> and <span class="math"><script type="math/tex">e_2</script></span>. These two programs are equivalent in <span class="math"><script type="math/tex">\lambda</script></span>. Since <span class="math"><script type="math/tex">\lambda</script></span> is pure, calling c once or twice produces the same result. Now consider the context <span class="math"><script type="math/tex">C^{\mathrm{ref}}</script></span> that implements a counter using a reference cell. The fully abstract
+compiler would have to disallow linking with <span class="math"><script type="math/tex">{C^{\mathrm{ref}}}^+</script></span> because it can distinguish them. In other words, <span class="math"><script type="math/tex">e_1^+</script></span> and <span class="math"><script type="math/tex">e_2^+</script></span> are no longer contextually equivalent.
+What if the programmer wants to link these together and is willing to give up some equivalences in order to do so?</p>
+<p>To enable this linking, we present linking-types extensions, <span class="math"><script type="math/tex">\lambda^\mathrm{\kappa}</script></span> and <span class="math"><script type="math/tex">\lambda^{{\mathrm{ref}}^{\kappa}}</script></span>. The <span class="math"><script type="math/tex">\lambda^\kappa</script></span> type system includes the reference type and the computation type, <span class="math"><script type="math/tex">R^{\epsilon} \tau</script></span>, which is analogous to <span class="math"><script type="math/tex">E^{\epsilon} \tau</script></span> in the target type system. We will use <span class="math"><script type="math/tex">R^{\epsilon} \tau</script></span> to track heap effects.</p>
+<p>With this extension, the programmer can annotate <span class="math"><script type="math/tex">e_1</script></span> and <span class="math"><script type="math/tex">e_2</script></span> with a linking type that specifies that the input to these programs can be heap-effecting. At this type, <span class="math"><script type="math/tex">e_1</script></span> and <span class="math"><script type="math/tex">e_2</script></span> are no longer contextually equivalent and further can be linked with <span class="math"><script type="math/tex">\lambda^{{\mathrm{ref}}^{\kappa}}</script></span>'s the counter library.</p>
+<p>Without the annotation, the compiler would translate the types of <span class="math"><script type="math/tex">e_1</script></span> and <span class="math"><script type="math/tex">e_2</script></span> which is the <span class="math"><script type="math/tex">\lambda</script></span> type <strong>unit -&gt; int</strong> to the <span class="math"><script type="math/tex">\lambda^{\mathrm{ref}}_{\mathrm{exn}}</script></span> type <strong>unit -&gt; <span class="math"><script type="math/tex">E^{o}_0</script></span></strong> and the type of counter c’ which is the <span class="math"><script type="math/tex">\lambda^{\mathrm{ref}}</script></span> type <strong>unit -&gt; int</strong> to the <span class="math"><script type="math/tex">\lambda^{\mathrm{ref}}_{\mathrm{exn}}</script></span> type <strong>unit -&gt; <span class="math"><script type="math/tex">E^{\cdot}_0</script></span></strong> type. Since these types are not the same an error would be reported and linking can’t happen.</p>
+<p>By contrast, <span class="math"><script type="math/tex">\lambda^\kappa</script></span>'s type <strong>unit -&gt; <span class="math"><script type="math/tex">R^{\cdot}</script></span> int -&gt; int</strong> that the programmer annotate <span class="math"><script type="math/tex">e_1</script></span> and <span class="math"><script type="math/tex">e_2</script></span>
+with will be translated to <strong>(unit -&gt; <span class="math"><script type="math/tex">E^{\cdot}_O</script></span> int) -&gt; <span class="math"><script type="math/tex">E^{\cdot}_O</script></span> int</strong> which is the same from the translation of
+the counter library.</p>
+<p>Please note that we are not changing the programming language itself. The terms added in the extension are there only for programmer’s reasoning. (so that the programmer is aware of the contexts in which his/her programs are linked) Linking types should only allow a programmer to change equivalence of their existing language.</p>
+<p>Additionally, to relate types of <span class="math"><script type="math/tex">\lambda</script></span> and <span class="math"><script type="math/tex">\lambda^{\kappa}</script></span> the linking types extension is equipped with type conversion functions <span class="math"><script type="math/tex">\kappa^+</script></span> and  <span class="math"><script type="math/tex">\kappa^-</script></span>. We will discuss this in more detail in the properties of linking types.</p>
+<h3>Properties of Linking Types</h3>
+<p>For any source language <span class="math"><script type="math/tex">\lambda_{src}</script></span>, an extended language <span class="math"><script type="math/tex">\lambda^{\kappa}_{src}</script></span> with type converting functions <span class="math"><script type="math/tex">\kappa^+</script></span> and <span class="math"><script type="math/tex">\kappa^-</script></span> is a linking types extension if the following properties hold:</p>
+<ul>
+<li><span class="math"><script type="math/tex">\forall e \in \lambda_{src}. e \in \lambda^{\kappa}_{src}</script></span></li>
+<li><span class="math"><script type="math/tex">\forall \tau \in \lambda_{src}. \kappa^+ (\tau) = \tau^{\kappa}</script></span></li>
+<li><span class="math"><script type="math/tex">\forall \tau^{\kappa} \in \lambda^{\kappa}_{src}. \kappa^- (\tau^{\kappa}) = \tau</script></span></li>
+<li><span class="math"><script type="math/tex">\forall \tau \in \lambda_{src}. \kappa^- (\kappa^+ (\tau)) = \tau</script></span></li>
+<li><span class="math"><script type="math/tex">\forall e_1, e_2 \in \lambda_{src}. e_1 \approx^{ctx}_{\lambda_{src}} e_2 : \tau \Longleftrightarrow e_1 \approx^{ctx}_{\lambda^{\kappa}_{src}} e_2 : \kappa^+ (\tau)</script></span></li>
+<li>The set of programs you can write in <span class="math"><script type="math/tex">\lambda_{src}</script></span> is the same set of programs you can write in <span class="math"><script type="math/tex">\lambda^{\kappa}_{src}</script></span>.</li>
+</ul></body>
 </html>

@@ -1,4 +1,8 @@
-This talk is based on the paper `Linking Types for Multi-language Software` by Daniel Patterson and Amal Ahmed, which is presented at SNAPL 2017.
+**Date and Time**: 10/24/2017, Tuesday at 5:00 - 6:00  
+**Presenter**: Hyeyoung Shin
+
+###Intro
+This talk is based on the paper *Linking Types for Multi-language Software* by Daniel Patterson and Amal Ahmed, which is presented at SNAPL 2017.
 
 ###Motivation
 In a large-scale software system, each part of the system is responsible for
