@@ -35,9 +35,8 @@ Compcert, but it only allows linking with components that satisfy CompCert' memo
 Ahmed's multi-language style of verified compilers are also a possible solution, but with a limitation
 that programmers need to understand the full intermediate ST language and the compiler from R to T.
 
-###Our Solution: Linking Types
-The proposed solution in this paper is to extend source language specifications with linking types. This is a better solution than previous works because they minimally enrich source language types
-and give programmers fine-grained control by letting them annotate individual terms that need linking.
+###Proposed Solution: Linking Types
+In ths paper, linking types are proposed as a solution to this problem. The authors claim that their solution is better than previous ones because they enrich the type system of source language minimally, but still give programmers fine-grained control over what can be linked.
 
 ### Linking Types Formally
 To introduce linking types formally, we consider two simple source languages, $\lambda$ and $\lambda^{\mathrm{ref}}$. $\lambda$ is the simply typed lambda calculus with unit and integer base types and $\lambda^{\mathrm{ref}}$ extends $\lambda$ with mutable references. We want type-preserving fully abstract compilers from $\lambda$ and $\lambda^{\mathrm{ref}}$ to
@@ -51,7 +50,7 @@ Let me illustrate the linking idea with two example programs $e_1$ and $e_2$. Th
 compiler would have to disallow linking with ${C^{\mathrm{ref}}}^+$ because it can distinguish them. In other words, $e_1^+$ and $e_2^+$ are no longer contextually equivalent.
 What if the programmer wants to link these together and is willing to give up some equivalences in order to do so?
 
-To enable this linking, we present linking-types extensions, $\lambda^\mathrm{\kappa}$ and $\lambda^{{\mathrm{ref}}^{\kappa}}$. The $\lambda^\kappa$ type system includes the reference type and the computation type, $R^{\epsilon} \tau$, which is analogous to $E^{\epsilon} \tau$ in the target type system. We will use $R^{\epsilon} \tau$ to track heap effects.
+To enable this linking, linking-types extensions, $\lambda^\mathrm{\kappa}$ and $\lambda^{{\mathrm{ref}}^{\kappa}}$ are presented. The $\lambda^\kappa$ type system includes the reference type and the computation type, $R^{\epsilon} \tau$, which is analogous to $E^{\epsilon} \tau$ in the target type system. We will use $R^{\epsilon} \tau$ to track heap effects.
 
 With this extension, the programmer can annotate $e_1$ and $e_2$ with a linking type that specifies that the input to these programs can be heap-effecting. At this type, $e_1$ and $e_2$ are no longer contextually equivalent and further can be linked with $\lambda^{{\mathrm{ref}}^{\kappa}}$'s the counter library.
 
@@ -61,7 +60,7 @@ By contrast, $\lambda^\kappa$'s type **unit -> $R^{\cdot}$ int -> int** that the
 with will be translated to **(unit -> $E^{\cdot}_O$ int) -> $E^{\cdot}_O$ int** which is the same from the translation of
 the counter library.
 
-Please note that we are not changing the programming language itself. The terms added in the extension are there only for programmer's reasoning. (so that the programmer is aware of the contexts in which his/her programs are linked) Linking types should only allow a programmer to change equivalence of their existing language.
+Please note that the proposed solution is not changing the programming language itself. The terms added in the extension are there only for programmer's reasoning. (so that the programmer is aware of the contexts in which his/her programs are linked) Linking types should only allow a programmer to change equivalence of their existing language.
 
 Additionally, to relate types of $\lambda$ and $\lambda^{\kappa}$ the linking types extension is equipped with type conversion functions $\kappa^+$ and  $\kappa^-$. We will discuss this in more detail in the properties of linking types.
 
@@ -100,4 +99,4 @@ Now we consider different type annotations a programmer of $\lambda^{{ref}^{\kap
 
 Observe the changed made in the equivalence classes in $\lambda^{{ref}^{\kappa}}$. At the type (int -> $R^{o} int$) -> $R^{o} int$, A, B, and C are all equivalent since this linking type requires that $f$ be pure.  At the type (int -> $R^{\cdot} int$) -> $R^{\cdot} int$ all three programs are in different equivalence classes, because the linking type allows $f$ to be impure. At the type (int -> $R^{o} int$) -> $R^{\cdot} int$ all three programs are equivalent again. Since $f$ is pure, allowing the body to be impure does not make any difference. The last linking type (int -> $R^{\cdot} int$) -> $R^{o} int$ can only be assigned to $A$, because an impure $f$ could not have been called to produce a pure result.
 
-The $\lambda$ programmer who wants to link one of these programs with a $\lambda^{ref}$ program can use $\lambda^{\kappa}$'s type (int -> $R^{\cdot} int$) -> $R^{\cdot} int$ to annotate the function $f$ to enable linking. In this process, he chooses to lose the equivalence in order to link. 
+The $\lambda$ programmer who wants to link one of these programs with a $\lambda^{ref}$ program can use $\lambda^{\kappa}$'s type (int -> $R^{\cdot} int$) -> $R^{\cdot} int$ to annotate the function $f$ to enable linking. In this process, he chooses to lose the equivalence in order to link.
