@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+  <head>
+      <meta charset="utf-8" />
+      <title>nested-word-temporal-logic</title>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    jax: ["input/TeX","output/HTML-CSS"],
+    extensions: [],
+    TeX: {
+      extensions: ["AMSmath.js","AMSsymbols.js","noErrors.js","noUndefined.js"]
+    },
+    showMathMenu: false
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js">
+</script>
+      
+  </head>
+  <body class='markdown-preview'><p><strong>Date and Time</strong>: 12/01/2017, Tuesday at 9:50 - 11:20<br>
+<strong>Presenter</strong>: Hyeyoung Shin</p>
+<h2>Nested Word Temporal Logic</h2>
+<h3>The papers</h3>
+<p>This presentation is based on <em>A temporal logic of nested calls and returns</em> by <em>Rajeev Alur, Kousha Etessami, and P. Madhusudan</em>. and two other papers by <em>Rajeev Alur</em>, which will be mentioned in the reference section.</p>
+<h3>How does my presentation fit into this course?</h3>
+<p>In the course of this semester, we have studied various implementation techniques for formal static analysis such as abstract interpretation, data-flow analysis, type system, etc. Today, I would like to talk about another useful tool in static analysis, model checking.</p>
+<p>Model checking is an automatic verification technique for finite state concurrent systems developed by Clarke and Emerson in early 1980’s.</p>
+<p>Model checking has two components, model of computation and specification language. A model checking problem then is</p>
+<blockquote>
+<p>Given a model of a system, exhaustively and automatically check whether this model meets a given specification formulated in logic.
+-wiki</p>
+</blockquote>
+<p>In traditional model checking, the model is a finite state machine and specifications are written in propositional temporal logic. However, model checking is also available when the model is a recursive state machine, which is more appropriate for the purpose of the special specification language I am going to introduce to you today.</p>
+<p>Advantages of model checking are no proofs, fast, counterexamples (<em>Clarke</em>). The main disadvantage is combinatorial blow up if the state space known as state explosion problem.</p>
+<h3>What is Temporal Logic?</h3>
+<p>Temporal logic is a special kind of modal logic. Modal logic studies different “modes” of truth and temporal logic provides ways to describe and reason about how the truth values of assertions change over time.</p>
+<p>Applications of temporal logic are many. One in computer science is that it is a tool for specifying and verifying correctness of computer programs [<em>Pnueli</em> 83]. Especially, it has been proved its usefulness in nonterminating or continuously operating concurrent programs such as operating systems and network communication protocols. In this sense, it differentiates itself from Hoare Logic, which is another well-known specification and verification tool in computer science.</p>
+<p>Temporal logic can be categorized along a number of axes: propositional vs first-order, global vs compositional, branching vs linear, point vs interval, and past vs future. The most popular and widely used temporal logic in computer science is the linear temporal logic. Also, it is closely related to the main topic of my presentation today. Thus, it is worthwhile to overview its syntax and semantics.</p>
+<h3>What is the syntax and semantics of Linear Temporal Logic?</h3>
+<p>The underlying structure of time is discrete, infinite into the future, and has an initial moment. We can formalize this by <span class="math"><script type="math/tex">M = (S, x, L)</script></span> where <span class="math"><script type="math/tex">S</script></span> is the set of states, <span class="math"><script type="math/tex">x: \mathbb{N} \rightarrow S</script></span> is infinite sequences of states or paths, and <span class="math"><script type="math/tex">L : S \rightarrow 2^{AP}</script></span> is the labeling of true <span class="math"><script type="math/tex">AP</script></span> at each state.</p>
+<p>The formulae of LTL are built from <span class="math"><script type="math/tex">AP</script></span>, logical connectives, and temporal operators</p>
+<ol>
+<li><span class="math"><script type="math/tex">\diamond</script></span> $ <strong>F</strong> <span class="math"><script type="math/tex">\phi</script></span>   &quot;<strong>eventually</strong> <span class="math"><script type="math/tex">\phi</script></span>&quot;</li>
+<li><span class="math"><script type="math/tex">\square</script></span> <strong>G</strong> <span class="math"><script type="math/tex">\phi</script></span>      &quot;<strong>always</strong> <span class="math"><script type="math/tex">\phi</script></span>&quot;</li>
+<li><span class="math"><script type="math/tex">\bigcirc</script></span> <strong>X</strong> <span class="math"><script type="math/tex">\phi</script></span>     &quot;<strong>nexttime</strong> <span class="math"><script type="math/tex">\phi</script></span>“”</li>
+<li><span class="math"><script type="math/tex">\phi</script></span> <strong>U</strong> <span class="math"><script type="math/tex">\psi</script></span>         &quot;<span class="math"><script type="math/tex">\phi</script></span> <strong>until</strong> <span class="math"><script type="math/tex">\psi</script></span>“”</li>
+</ol>
+<p>In the formal syntax <strong>X</strong> and <strong>U</strong> are the only primitive operators because the others can be written in abbreviation using <strong>X</strong> and <strong>U</strong>.</p>
+<p>==========================================<br>
+<em>Exercise 1:</em> Write <strong>G</strong> <span class="math"><script type="math/tex">\phi</script></span> and <strong>F</strong> <span class="math"><script type="math/tex">\phi</script></span> using <strong>X</strong> and <strong>U</strong>.<br>
+==========================================</p>
+<p>The binding precedence is all the temporal operators, <span class="math"><script type="math/tex">\neg</script></span>, <span class="math"><script type="math/tex">\wedge</script></span>, <span class="math"><script type="math/tex">\vee</script></span>, <span class="math"><script type="math/tex">\Rightarrow</script></span>.</p>
+<p>==========================================<br>
+<em>Exercise 2:</em> What is the difference between <strong>GF</strong> <span class="math"><script type="math/tex">\phi</script></span> and <strong>FG</strong> <span class="math"><script type="math/tex">\phi</script></span>?<br>
+==========================================</p>
+<p>We define semantics of a formula <span class="math"><script type="math/tex">\phi</script></span> of LTL with respect to a linear time structure <span class="math"><script type="math/tex">M</script></span>. Also, note that <span class="math"><script type="math/tex">x_i</script></span> denotes the <span class="math"><script type="math/tex">i</script></span>th state of <span class="math"><script type="math/tex">x</script></span> and <span class="math"><script type="math/tex">x^i</script></span> denotes the suffix of <span class="math"><script type="math/tex">x</script></span> starting at the <span class="math"><script type="math/tex">i</script></span>th state of <span class="math"><script type="math/tex">x</script></span>.</p>
+<p><span class="math"><script type="math/tex">M, x \vDash \phi</script></span> means in structure <span class="math"><script type="math/tex">M</script></span>, formula <span class="math"><script type="math/tex">\phi</script></span> is true of x$.</p>
+<p><span class="math"><script type="math/tex">\vDash</script></span> is inductively defined on the structure of the formulae.</p>
+<p><span class="math"><script type="math/tex">\cdot</script></span> <span class="math"><script type="math/tex">x \vDash \phi</script></span> iff <span class="math"><script type="math/tex">\phi \in L(s_0).</script></span>  (or <span class="math"><script type="math/tex">x \vDash \phi</script></span> iff <span class="math"><script type="math/tex">x_0 \vDash \phi</script></span>.)</p>
+<p><span class="math"><script type="math/tex">\cdot</script></span> <span class="math"><script type="math/tex">x \vDash \phi \wedge \psi</script></span> iff <span class="math"><script type="math/tex">x \vDash \phi</script></span> and <span class="math"><script type="math/tex">x \vDash \psi</script></span>.</p>
+<p><span class="math"><script type="math/tex">\cdot</script></span> <span class="math"><script type="math/tex">x \vDash \neg \phi</script></span> iff <span class="math"><script type="math/tex">x \nvDash \phi</script></span>.</p>
+<p><span class="math"><script type="math/tex">\cdot</script></span> <span class="math"><script type="math/tex">x \vDash \phi</script></span> <strong>U</strong> <span class="math"><script type="math/tex">\psi</script></span> iff <span class="math"><script type="math/tex">\exists j (x^j \vDash \psi</script></span> and <span class="math"><script type="math/tex">\forall k < j (x^k \vDash \phi)</script></span>.</p>
+<p><span class="math"><script type="math/tex">\cdot</script></span> <span class="math"><script type="math/tex">x \vDash</script></span> <strong>X</strong> <span class="math"><script type="math/tex">\phi</script></span> iff <span class="math"><script type="math/tex">x^1 \vDash \phi</script></span>.</p>
+<p><span class="math"><script type="math/tex">\cdot</script></span> <span class="math"><script type="math/tex">x \vDash</script></span> <strong>F</strong> <span class="math"><script type="math/tex">\phi</script></span> iff <span class="math"><script type="math/tex">\exists j (x^j \vDash \phi</script></span>).</p>
+<p><span class="math"><script type="math/tex">\cdot</script></span> <span class="math"><script type="math/tex">x \vDash</script></span> <strong>G</strong> <span class="math"><script type="math/tex">\phi</script></span> iff <span class="math"><script type="math/tex">\forall j (x^j \vDash \phi</script></span>).</p>
+<p><span class="math"><script type="math/tex">\cdot</script></span> <span class="math"><script type="math/tex">x \vDash</script></span> <strong>GF</strong> <span class="math"><script type="math/tex">\phi</script></span> iff <span class="math"><script type="math/tex">\forall k (\exists j \geq k) (x^j \vDash \phi</script></span>). (<span class="math"><script type="math/tex">\phi</script></span> is true infinitely often.)</p>
+<p><span class="math"><script type="math/tex">\cdot</script></span> <span class="math"><script type="math/tex">x \vDash</script></span> <strong>FG</strong> <span class="math"><script type="math/tex">\phi</script></span> iff <span class="math"><script type="math/tex">\exists k (\exists j > k) (x^j \vDash \phi</script></span>). (<span class="math"><script type="math/tex">\phi</script></span> is almost always true. (finite number of times?))</p>
+<h3>Can we extend LTL so that we can express truth of the past?</h3>
+<p>Yes, with past tense operator -.</p>
+<ol>
+<li><strong>F-</strong> <span class="math"><script type="math/tex">\phi</script></span>  “<strong>sometime in the past</strong> <span class="math"><script type="math/tex">\phi</script></span> holds”</li>
+<li><strong>G-</strong> <span class="math"><script type="math/tex">\phi</script></span>  “<strong>always in the past</strong> <span class="math"><script type="math/tex">\phi</script></span> holds”</li>
+<li><strong>X-</strong> <span class="math"><script type="math/tex">\phi</script></span>  “<strong>lasttime</strong> <span class="math"><script type="math/tex">\phi</script></span> holds” (at <span class="math"><script type="math/tex">s_0</script></span> false)</li>
+<li><span class="math"><script type="math/tex">\phi</script></span> <strong>U-<span class="math"><script type="math/tex"></script></span></strong> “<strong>sometime in the past</strong> <span class="math"><script type="math/tex">\psi</script></span> holds and <span class="math"><script type="math/tex">\phi</script></span> holds <strong>until</strong> then”</li>
+</ol>
+<h3>Why CARET and how is it different from LTL?</h3>
+<p>The special specification language of interest is called Nested Word Temporal Logic. While LTL is good for capturing regular sequencing requirements such as “between successive write operations to a variable, a read operation should occur,” it cannot express requirements such as “if the pre-condition <span class="math"><script type="math/tex">p</script></span> holds when a module is invoked, the post condition <span class="math"><script type="math/tex">q</script></span> should hold when the module returns”. This requires matching of calls and returns, and is a non-regular property if calls are nested. (recall the first non-regular language <span class="math"><script type="math/tex">\{a^nb^n \mid n \in \mathbb{N}\}</script></span>)</p>
+<p><em>Rajeev Alur, Kousha Etessami</em>, and <em>P. Madhusudan</em> introduce CARET, a temporal logic that can express matching calls and returns. Calls here represent invocations of a program module and returns are the exit from the called module.</p>
+<p>Besides global temporal modalities, CARET has abstract and caller counterparts for all the temporal modalities. Moreover, there are three kinds of paths each obtained by repetitive applications of global, abstract, and caller <strong>succ^b</strong> <span class="math"><script type="math/tex">b \in \{g, a, -\}</script></span> operator.</p>
+<ol>
+<li>
+<p>The global paths is the usual path in the state space.</p>
+</li>
+<li>
+<p>The abstract paths removes computation corresponding to calls to other blocks capturing the <em>local</em> computation within a module.</p>
+</li>
+<li>
+<p>The caller path can be interpreted as the contents of the call-stack at a position.</p>
+</li>
+</ol>
+<p>CARET mixes global, abstract, and caller modalities allowing integrated and more expressive specification properties such as “variable <span class="math"><script type="math/tex">x</script></span> remains unchanged after the current call returns.”</p>
+<p>The computation model of CARET is a combination of structured computation, recursive state machine, and Kripke structure, which will be defined soon.</p>
+<p>The authors of the paper claim that CARET is the first specification language that allows specification of partial and total correctness with respect to pre and post conditions, e.g. total correctness w.r.t. the pre and post condition is the formula</p>
+<p><span class="math"><script type="math/tex">\square (call_A \wedge p \rightarrow \bigcirc^a q)</script></span></p>
+<p>and has a decidable model checking problem.</p>
+<p>Model checking problem of CARET is to check whether all computations of an RSM S satisfy a CARET specification <span class="math"><script type="math/tex">\phi</script></span>. Note that both <span class="math"><script type="math/tex">S</script></span> and <span class="math"><script type="math/tex">\phi</script></span> are context-free, but in their setting, the model checkin problem becomes decidable since the model and the specification are synchronized on the call and ret symbols.</p>
+<h3>The model of computation of CARET?</h3>
+<ol>
+<li>
+<p>Structured computations</p>
+<p>Execution of a program is typically modeled as a word over an alphabet. We can then represent an infinite sequence of states of a structured computation with an infinite word <span class="math"><script type="math/tex">\alpha</script></span> over alphabet <span class="math"><script type="math/tex">\hat{\Gamma}</script></span> where <span class="math"><script type="math/tex">\Gamma = 2^{AP}</script></span> and <span class="math"><script type="math/tex">\hat{\Gamma} = \Gamma \times \{call, ret, int\}</script></span>.</p>
+<p>For a word <span class="math"><script type="math/tex">\alpha</script></span> over <span class="math"><script type="math/tex">\hat{\Gamma}</script></span>, there is a natural notion of a matching between calls and returns: if <span class="math"><script type="math/tex">\alpha_i = (\sigma, call)</script></span> and <span class="math"><script type="math/tex">\alpha_j = (\sigma', ret)</script></span>, then <span class="math"><script type="math/tex">j</script></span> is the matching return for <span class="math"><script type="math/tex">i</script></span> if <span class="math"><script type="math/tex">j</script></span> is the return corresponding to the call at <span class="math"><script type="math/tex">i</script></span>. More formally, we can define a function <span class="math"><script type="math/tex">R_{\alpha}</script></span> that maps any <span class="math"><script type="math/tex">i \in \mathbb{N}</script></span> to the first unmatched return after <span class="math"><script type="math/tex">i</script></span>. Otherwise, <span class="math"><script type="math/tex">R_{\alpha} = \bot</script></span></p>
+<ul>
+<li><span class="math"><script type="math/tex">succ^g_{\alpha}(i) = i+1</script></span></li>
+<li><span class="math"><script type="math/tex">succ^a_{\alpha}(i) = j > i</script></span> the matching return otherwise <span class="math"><script type="math/tex">\bot</script></span></li>
+<li><span class="math"><script type="math/tex">succ^{-}_{\alpha}(i) = j < i</script></span> the innermost call otherwise <span class="math"><script type="math/tex">\bot</script></span></li>
+</ul>
+</li>
+<li>
+<p>Recursive state machines</p>
+<p>Recursive state machines model the interprocedural control flow in recursive programs. An RSM <span class="math"><script type="math/tex">S = (M, \{S_m\}_{m\in M}, Start)</script></span>.</p>
+<p>For each <span class="math"><script type="math/tex">m \in M</script></span> <span class="math"><script type="math/tex">S_m</script></span> is a module where <span class="math"><script type="math/tex">S_m = (N_m, B_m, Y_m, En_m, Ex_m, \delta_m, \eta_m)</script></span>.</p>
+</li>
+</ol>
+<ul>
+<li>
+<p><span class="math"><script type="math/tex">N_m</script></span> the finite nonempty set of nodes</p>
+</li>
+<li>
+<p><span class="math"><script type="math/tex">B_m</script></span> the finite set of boxes</p>
+</li>
+<li>
+<p><span class="math"><script type="math/tex">En_m \subseteq N_m</script></span> the nonempty set of entry nodes</p>
+</li>
+<li>
+<p><span class="math"><script type="math/tex">Ex_m \subseteq N_m</script></span> the nonempty set of exist nodes</p>
+</li>
+<li>
+<p><span class="math"><script type="math/tex">\delta_m : N_m \cup Retns_m \rightarrow 2^{N_m \cup Calls_m}</script></span> is a transition function where<br>
+<span class="math"><script type="math/tex">Calls_m = \{(b, e) \mid b \in B_m, e \in En_{Y_m(b)}\}</script></span> the set of calls of m<br>
+<span class="math"><script type="math/tex">Retns_m = \{(b, x) \mid b \in B_m, e \in Ex_{Y_m(b)}\}</script></span> the set of returns of m</p>
+</li>
+<li>
+<p><span class="math"><script type="math/tex">\eta_m : V_m \rightarrow 2^{AP}</script></span> where<br>
+<span class="math"><script type="math/tex">V_m = N_m \cup Calls_m \cup Retns_m</script></span> is a labeling function that associates a set of propositions to each vertex</p>
+<p><span class="math"><script type="math/tex">V = \bigcup_{m \in M} V_m</script></span><br>
+<span class="math"><script type="math/tex">B = \bigcup_{m \in M} B_m</script></span><br>
+<span class="math"><script type="math/tex">\eta : V \rightarrow 2^{AP}</script></span><br>
+<span class="math"><script type="math/tex">Y : B \rightarrow M</script></span></p>
+</li>
+</ul>
+<ol start="3">
+<li>Global Kripke structure <span class="math"><script type="math/tex">K_s = (Q, Init, \kappa, \delta)</script></span>.</li>
+</ol>
+<ul>
+<li><span class="math"><script type="math/tex">Q = \{(\gamma, u) \mid \gamma \in B*, u \in V\}</script></span> such that<br>
+either<br>
+<span class="math"><script type="math/tex">\gamma = \epsilon</script></span> and <span class="math"><script type="math/tex">u \in V</script></span>
+<span class="math"><script type="math/tex">\gamma = b_1.b_2...b_k (k \geq 1)</script></span> and <span class="math"><script type="math/tex">\forall i \in [a, k-1] (b_{i+1} \in B_{Y(b_i)}</script></span> and <span class="math"><script type="math/tex">u \in V_{Y(b_i)}</script></span></li>
+<li><span class="math"><script type="math/tex">Init = \{(\epsilon, u) \in Q \mid u \in start\}</script></span></li>
+<li><span class="math"><script type="math/tex">\kappa((\gamma,u)) = (\eta(u), z)</script></span> where<br>
+<span class="math"><script type="math/tex">z = int</script></span> if <span class="math"><script type="math/tex">u</script></span> is a node<br>
+<span class="math"><script type="math/tex">z = call</script></span> if <span class="math"><script type="math/tex">u</script></span> is a call<br>
+<span class="math"><script type="math/tex">z = ret</script></span> if <span class="math"><script type="math/tex">u</script></span> is a return</li>
+<li><span class="math"><script type="math/tex">\delta : Q \rightarrow 2^Q</script></span> is defined by <span class="math"><script type="math/tex">(\gamma, u) \mapsto (\gamma', u')</script></span> if<br>
+1. internal move: <span class="math"><script type="math/tex">u \in (N_m \cup Retns_m) \ Ex_m \rightarrow u' \in \delta_m(u)</script></span> and <span class="math"><script type="math/tex">\gamma' = \gamma</script></span><br>
+2. call a module: <span class="math"><script type="math/tex">u = (b,e) \in Calls \rightarrow u' = e</script></span> and <span class="math"><script type="math/tex">\gamma' = \gamma.b</script></span><br>
+3. return from a call: <span class="math"><script type="math/tex">u \in Ex_m \rightarrow \gamma = \gamma'.b</script></span> and <span class="math"><script type="math/tex">u' = (b,u)</script></span></li>
+</ul>
+<p>For a word <span class="math"><script type="math/tex">\alpha = \alpha_0 \alpha_1 \alpha_2 ... \in \hat{\Gamma}^{\omega}</script></span> a run of <span class="math"><script type="math/tex">K_s</script></span> on <span class="math"><script type="math/tex">\alpha</script></span> is a sequence of states <span class="math"><script type="math/tex">\pi = s_0, s_1, ... $ where $\kappa(s_i) = \alpha_i \forall i \in \mathbb{N}</script></span> such that <span class="math"><script type="math/tex">s_o \in Init</script></span> and <span class="math"><script type="math/tex">\forall i \in \mathbb{N} (s_{i+1} \in \delta(s_i))</script></span>.</p>
+<p><span class="math"><script type="math/tex">L(S) = \{ \alpha \in \hat{\Gamma}^{\omega} \mid \exists \text{ run of } K_s \text{ on } \alpha \}</script></span></p>
+<h3>Finally CARET</h3>
+<p>Let <span class="math"><script type="math/tex">P = AP \cup \{call, ret, int\}</script></span>. The models of the logic are the words in <span class="math"><script type="math/tex">\hat{\Gamma}^{\omega}</script></span>. Then CARET over <span class="math"><script type="math/tex">AP</script></span> is the set of formulas defined by</p>
+<p><span class="math"><script type="math/tex">\phi := p \mid \phi \vee \phi \mid \neg \phi \mid \bigcirc^g \phi \mid \phi U^g \phi \mid \bigcirc^a \phi \mid \phi U^a \phi \mid \bigcirc^- \phi \mid \phi U^- \phi</script></span></p>
+<p>For a word <span class="math"><script type="math/tex">\alpha \in \hat{\Gamma}^{\omega}</script></span>, the semantics is inductively defined by <span class="math"><script type="math/tex">(\alpha, n) \vDash \phi</script></span> where <span class="math"><script type="math/tex">n \in \mathbb{N}</script></span>. A word <span class="math"><script type="math/tex">\alpha</script></span> satisfies <span class="math"><script type="math/tex">\phi</script></span> iff <span class="math"><script type="math/tex">(\alpha, 0)</script></span> satisfies <span class="math"><script type="math/tex">\phi</script></span>.</p>
+<ul>
+<li><span class="math"><script type="math/tex">(\alpha, n) \vDash p</script></span> iff <span class="math"><script type="math/tex">\alpha_ n = (X, d)</script></span> and <span class="math"><script type="math/tex">p \in X</script></span> or <span class="math"><script type="math/tex">p = d</script></span> (where <span class="math"><script type="math/tex">p \in P</script></span>)</li>
+<li><span class="math"><script type="math/tex">(\alpha, n) \vDash \phi_1 \vee \phi_2</script></span> iff (\alpha, n) \vDash \phi$ or <span class="math"><script type="math/tex">(\alpha, n) \vDash \phi_2</script></span></li>
+<li><span class="math"><script type="math/tex">(\alpha, n) \vDash \neg \phi</script></span> iff <span class="math"><script type="math/tex">(\alpha, n) \nvDash \phi</script></span></li>
+<li><span class="math"><script type="math/tex">(\alpha, n) \vDash \bigcirc^g \phi</script></span> iff <span class="math"><script type="math/tex">(\alpha, succ^g_{\alpha}(n)) \vDash \phi</script></span>, i.e., iff <span class="math"><script type="math/tex">(\alpha, n+1) \vDash \phi</script></span></li>
+<li><span class="math"><script type="math/tex">(\alpha, n) \vDash \bigcirc^a \phi</script></span> iff <span class="math"><script type="math/tex">succ^a_{\alpha(n)} \neq \bot</script></span> and <span class="math"><script type="math/tex">(\alpha, succ^a_{\alpha}(n)) \vDash \phi</script></span></li>
+<li><span class="math"><script type="math/tex">(\alpha, n) \vDash \bigcirc^- \phi</script></span> iff <span class="math"><script type="math/tex">succ^{-}_{\alpha} \neq \bot</script></span> and <span class="math"><script type="math/tex">(\alpha, succ^{-}_{\alpha}(n)) \vDash \phi</script></span></li>
+<li><span class="math"><script type="math/tex">(\alpha, n) \vDash \phi_1 U^b \phi_2</script></span> for any <span class="math"><script type="math/tex">b \in \{g, a, -\}</script></span> iff there is a sequence of positions <span class="math"><script type="math/tex">i_0, i_1, ..., i_k</script></span>, where <span class="math"><script type="math/tex">i_0 = n</script></span>, <span class="math"><script type="math/tex">(\alpha, i_k) \vDash \phi_2</script></span> and for every <span class="math"><script type="math/tex">0 \leq j \leq k-1</script></span>, <span class="math"><script type="math/tex">i_{j+1} = succ^b_{\alpha}(i_j)</script></span> and <span class="math"><script type="math/tex">(\alpha, i_j) \vDash \phi_1</script></span></li>
+</ul>
+<p>Then the model-checking problem statement is</p>
+<blockquote>
+<p>Given an RSM S and a formula <span class="math"><script type="math/tex">\phi</script></span> of CARET, does <span class="math"><script type="math/tex">S \vDash \phi</script></span>?</p>
+</blockquote>
+<p>================================================<br>
+Exercise 3. Consider the RSM S. Assume <span class="math"><script type="math/tex">start = En_1</script></span>.<br>
+$S \vDash \square^g (d \rightarrow \diamond^g z)?</p>
+<p>How about  <span class="math"><script type="math/tex">S \vDash \square^g (d \rightarrow \diamond^a z)</script></span>?</p>
+<p>How about <span class="math"><script type="math/tex">S \vDash \square^g (y \rightarrow \bigcirc^- t)</script></span>?</p>
+<p>================================================</p>
+<h3>The expressiveness of CARET</h3>
+<ol>
+<li>
+<p>Pre and Post conditions</p>
+<ul>
+<li><span class="math"><script type="math/tex">\phi_{total} : \square [(call \wedge p \wedge p_A) \rightarrow \bigcirc^a q]</script></span></li>
+<li><span class="math"><script type="math/tex">\phi_{partial} : \square [(call \wedge p \wedge p_A) \rightarrow \neq \bigcirc^a \neq q]</script></span></li>
+</ul>
+</li>
+<li>
+<p>Boundedness</p>
+<ul>
+<li><span class="math"><script type="math/tex">\phi_{empty} : \square (call \rightarrow \bigcirc^a ret)</script></span></li>
+<li>$\phi_{rep-bounded} : \diamond\square (call \rightarrow \bigcirc^a ret)</li>
+</ul>
+</li>
+<li>
+<p>Local Properties</p>
+<ul>
+<li><span class="math"><script type="math/tex">\phi_{local-response} : \square [(t_A \wedge p) \rightarrow \diamond^a q]</script></span></li>
+</ul>
+</li>
+<li>
+<p>Stack Inspection Properties</p>
+<ul>
+<li><span class="math"><script type="math/tex">\phi_{stack} : \square (call \wedge p_A \rightarrow (\neg p_C) U^- p_B)</script></span></li>
+</ul>
+</li>
+</ol>
+<p>Of course, the expressiveness of CARET is limited. For example, we won’t be able to express the halting problem in CARET. In return, we have decidable model checking problems.</p>
+<h3>HOWTO of model checking</h3></body>
+</html>
